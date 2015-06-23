@@ -17,7 +17,9 @@ Anemone.crawl(urls, depth_limit: 1, skip_query_strings: true) do |anemone|
   end
 
   # 取得したページに対する処理
-  anemone.on_every_page do |page|
+  PATTERN = %r[466298\/+|466282\/+|229165705\+|2291905051\/+]
+
+  anemone.on_pages_like(PATTERN) do |page|
     puts page.url
   end
 end
