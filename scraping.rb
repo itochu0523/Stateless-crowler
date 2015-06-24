@@ -2,37 +2,57 @@
 require "anemone"
 require "nokogiri"
 require "kconv"
+require "csv"
+
+otsuka    = "http://itp.ne.jp/result/?nad=1&sr=1&ad=13105001"
+# nishikata = "http://itp.ne.jp/result/?nad=1&sr=1&ad=13105011"
+# yushima   = "http://itp.ne.jp/result/?nad=1&sr=1&ad=13105019"
+# kouraku   = "http://itp.ne.jp/result/?nad=1&sr=1&ad=13105005"
+# kasuga    = "http://itp.ne.jp/result/?nad=1&sr=1&ad=13105003"
+# suido     = "http://itp.ne.jp/result/?nad=1&sr=1&ad=13105007"
+# kohinata  = "http://itp.ne.jp/result/?nad=1&sr=1&ad=13105006"
+# sekiguchi = "http://itp.ne.jp/result/?nad=1&sr=1&ad=13105008"
 
 urls = []
-urls.push("http://www.amazon.co.jp/gp/bestsellers/digital-text/2291657051/")
-urls.push("http://www.amazon.co.jp/gp/bestsellers/digital-text/2291905051/")
-urls.push("http://www.amazon.co.jp/gp/bestsellers/books/466298/")
-urls.push("http://www.amazon.co.jp/gp/bestsellers/books/466282/")
+urls.push(otsuka)
+# urls.push(nishikata)
+# urls.push(yushima)
+# urls.push(kouraku)
+# urls.push(kasuga)
+# urls.push(suido)
+# urls.push(kohinata)
+# urls.push(sekiguchi)
 
-Anemone.crawl(urls, depth_limit: 0) do |anemone|
+Anemone.crawl(urls, depth_limit: 0, skip_query_skip: true) do |anemone|
   anemone.on_every_page do |page|
+
   # 文字コードをUTF-8に変換したうえで、Nokogiriでパース
     doc = Nokogiri::HTML.parse(page.body.toutf8)
 
-    category = doc.xpath("//*[@id='zg_browseRoot']/ul/li/a").text
+    names        = doc.xpath("//a[@class=\"blueText\"]")
+    first_items  = doc.xpath("//article/section/p[1]")
+    second_items = doc.xpath("//article/section/p[2]")
+    third_items  = doc.xpath("//article/section/p[3]")
 
-    # カテゴリの表示
-    sub_category = doc.xpath("//*[@id=\"zg_listTitle\"]/span").text
+    names_ary = []
+    names.each do |name|
+      names_ary << name.text
+    end
 
-    puts category+"/"+sub_category
+    first_items_ary = []
+    first_items.each do |first_item|
+      first_items_ary << first_item.text
+    end
 
-    items =  doc.xpath("//div[@id=\"zg_itemRow\"]/div[1]/div[2]")
-    items += doc.xpath("//div[@class=\"zg_itemRow\"]/div[2]/div[2]")
+    second_items_ary = []
+    second_items.each do |second_item|
+      second_items_ary << second_item.text
+    end
 
-    items.each{ |item|
-      # 順位
-      puts item.xpath("div[1]/span[1]").text
-
-      # 書名
-      puts item.xpath("div[\"zg_title\"]/a").text
-
-      # ASIN
-      puts item.xpath("div[\"zg_title\"]/a").attribute("href").text.match(%r{dp/(.+?)/})[1]
-    }
+    third_items_ary = []
+    third_items.each do |third_item|
+      third_items_ary << third_item.text
+    end
+    store_info = names_ary.zip(first_items_ary, second_items_ary, third_items_ary)
   end
 end
