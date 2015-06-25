@@ -5,11 +5,11 @@ require "kconv"
 require "csv"
 
 urls = []
-urls.push("http://itp.ne.jp/result/?sr=1&nad=1&ad=13105001002&evdc=1&num=50&pg=2")
+urls.push("http://itp.ne.jp/tokyo/13105/genre_dir/medical/pg/21/?sr=1&nad=1&st=1&num=50")
 # urls.push("http://itp.ne.jp/result/?sr=1&nad=1&ad=13105001001&evdc=1&num=50&pg=2")
 # urls.push("")
 # urls.push("")
-# urls.push("")
+# urls.push(""
 # urls.push("")
 # urls.push("")
 # urls.push("")
@@ -60,6 +60,7 @@ Anemone.crawl(urls, depth_limit: 0) do |anemone|
     # now = Time.now.strftime('%Y%M%d')
     file_name = "list.csv"
     File.open("#{file_name}", "a") do |f|
+      f.puts
       f.puts csv_str
     end
   end
